@@ -1,10 +1,12 @@
 package routes
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/Atipat-CMU/api-gateway/middleware"
@@ -34,9 +36,20 @@ func SetupRouter() *gin.Engine {
 	})
 
 	// Reverse Proxy routes
-	router.GET("/user-info-service/*proxyPath", reverseProxy("http://localhost:8088/api/v1"))
-	router.GET("/project-management-service/*proxyPath", reverseProxy("http://localhost:8081/api/v1"))
-	router.POST("/project-management-service/*proxyPath", reverseProxy("http://localhost:8081/api/v1"))
+	userInfoURL := fmt.Sprintf(
+		"http://%s:%s/api/v1",
+		os.Getenv("USER_INFO_SERVICE_HOST"),
+		os.Getenv("USER_INFO_SERVICE_PORT"),
+	)
+	router.GET("/user-info-service/*proxyPath", reverseProxy(userInfoURL))
+
+	projectURL := fmt.Sprintf(
+		"http://%s:%s/api/v1",
+		os.Getenv("PROJECT_SERVICE_HOST"),
+		os.Getenv("PROJECT_SERVICE_PORT"),
+	)
+	router.GET("/project-management-service/*proxyPath", reverseProxy(projectURL))
+	router.POST("/project-management-service/*proxyPath", reverseProxy(projectURL))
 
 	return router
 }
@@ -67,11 +80,6 @@ func reverseProxy(target string) gin.HandlerFunc {
 		// 	// Remove duplicate CORS headers
 		// 	resp.Header.Del("Access-Control-Allow-Origin")
 		// 	return nil
-		// }
-
-		// // Set the proxy path if necessary
-		// if proxyPath := c.Param("proxyPath"); proxyPath != "" {
-		// 	c.Request.URL.Path = proxyPath
 		// }
 
 		proxy.ServeHTTP(c.Writer, c.Request)
