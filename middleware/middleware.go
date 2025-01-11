@@ -22,7 +22,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		token = strings.TrimPrefix(token, "Bearer ")
 
 		// Validate the token (you can implement your own validation logic here)
-		userId, err := service.NewUserService().ValidateJWT(token)
+		userId, err := service.NewAuthService().ValidateJWT(token)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			c.Abort()

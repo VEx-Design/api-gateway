@@ -9,14 +9,14 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type userService struct {
+type authService struct {
 }
 
-func NewUserService() logic.UserService {
-	return &userService{}
+func NewAuthService() logic.AuthService {
+	return &authService{}
 }
 
-func (u *userService) ValidateJWT(tokenString string) (string, error) {
+func (u *authService) ValidateJWT(tokenString string) (string, error) {
 
 	// Parse the JWT token
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
