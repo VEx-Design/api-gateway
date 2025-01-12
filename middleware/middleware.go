@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -14,6 +15,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		token, err := c.Cookie("Authorization")
 		if err != nil || token == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing or invalid token"})
+			fmt.Printf("Missing or invalid token: %s\n", token)
 			c.Abort()
 			return
 		}
@@ -31,6 +33,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 
 		// You can store the user ID in the context to access later in the request handlers
 		c.Request.Header.Set("X-User-Id", userId)
+		c.Set("user_id", userId)
 
 		// Proceed to the next handler
 		c.Next()

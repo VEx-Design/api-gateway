@@ -7,6 +7,7 @@ import (
 
 	gqlHandler "github.com/99designs/gqlgen/graphql/handler"
 	graph "github.com/Atipat-CMU/api-gateway/external/handler/adaptors/graphql"
+	handler "github.com/Atipat-CMU/api-gateway/external/handler/adaptors/rest/api"
 	"github.com/Atipat-CMU/api-gateway/external/handler/router"
 	"github.com/Atipat-CMU/api-gateway/external/receiver/adaptors/gRPC"
 	receiver "github.com/Atipat-CMU/api-gateway/external/receiver/adaptors/gRPC/controller"
@@ -34,14 +35,16 @@ func main() {
 		UserSrv: userSrv,
 	}
 
-	userHandler := gqlHandler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: resolver}))
+	userGHandler := gqlHandler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: resolver}))
+	userHandler := handler.NewUserHandler(userSrv)
 
 	r := gin.Default()
 
-	router.RegisterGQLRoutes(r, userHandler)
-
 	// Initialize the router
 	r = initializer.SetupRouter(r)
+
+	router.RegisterGQLRoutes(r, userGHandler)
+	router.RegisterUserRoutes(r, userHandler)
 
 	port := "8080"
 	// Start the server using HTTP

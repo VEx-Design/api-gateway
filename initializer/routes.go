@@ -25,9 +25,10 @@ func SetupRouter(router *gin.Engine) *gin.Engine {
 		MaxAge:           12 * time.Hour,                                                          // Cache preflight request
 	}))
 
+	router.Use(requestLogger())
+
 	// JWT middleware for authentication
 	router.Use(middleware.JWTAuthMiddleware())
-	router.Use(requestLogger())
 
 	// Explicitly handling OPTIONS requests (could be optional with proper CORS middleware)
 	router.OPTIONS("/*proxyPath", func(c *gin.Context) {
@@ -80,7 +81,14 @@ func reverseProxy(target string) gin.HandlerFunc {
 func requestLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Printf("Request: %s %s", c.Request.Method, c.Request.URL.Path)
+
 		c.Next()
+
 		log.Printf("Response Status: %d", c.Writer.Status())
+		if len(c.Errors) > 0 {
+			for _, e := range c.Errors {
+				log.Printf("Error: %v", e.Err)
+			}
+		}
 	}
 }

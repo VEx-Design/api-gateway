@@ -6,13 +6,18 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Atipat-CMU/api-gateway/external/handler/adaptors/graphql/model"
 	"github.com/Atipat-CMU/api-gateway/external/handler/adaptors/graphql/query"
 )
 
 // User is the resolver for the user field.
-func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
+func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
+	id := ctx.Value("user_id").(string)
+	if id == "" {
+		return nil, fmt.Errorf("unauthenticated")
+	}
 	return query.NewUserQuery(r.UserSrv).GetUser(id)
 }
 
