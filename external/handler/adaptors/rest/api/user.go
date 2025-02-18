@@ -18,10 +18,10 @@ func NewUserHandler(userSrv logic.UserService) *UserHandler {
 }
 
 func (h *UserHandler) GetID(c *gin.Context) {
-	userID := c.GetHeader("X-User-Id")
-	if userID == "" {
+	userId := c.GetHeader("X-User-Id")
+	if userId == "" {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "missing X-User-Id header"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"id": userID})
+	c.JSON(http.StatusOK, gin.H{"userId": userId})
 }

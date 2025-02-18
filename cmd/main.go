@@ -12,6 +12,7 @@ import (
 	"github.com/Atipat-CMU/api-gateway/external/receiver/adaptors/gRPC"
 	receiver "github.com/Atipat-CMU/api-gateway/external/receiver/adaptors/gRPC/controller"
 	"github.com/Atipat-CMU/api-gateway/initializer"
+	"github.com/Atipat-CMU/api-gateway/internal/service"
 	mygrpc "github.com/Atipat-CMU/api-gateway/pkg/gRPC"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -28,8 +29,9 @@ func main() {
 		log.Fatalf("Failed to create gRPC client: %v", err)
 	}
 
-	userReceiver := gRPC.NewUserServiceClient(cilent)
-	userSrv := receiver.NewUserReceiver(userReceiver)
+	userGRPCclient := gRPC.NewUserServiceClient(cilent)
+	userRev := receiver.NewUserReceiver(userGRPCclient)
+	userSrv := service.NewUserService(userRev)
 
 	resolver := &graph.Resolver{
 		UserSrv: userSrv,

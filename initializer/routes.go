@@ -31,17 +31,30 @@ func SetupRouter(router *gin.Engine) *gin.Engine {
 	router.Use(middleware.JWTAuthMiddleware())
 
 	// Explicitly handling OPTIONS requests (could be optional with proper CORS middleware)
-	router.OPTIONS("/*proxyPath", func(c *gin.Context) {
-		c.Status(http.StatusOK)
-	})
+	// router.OPTIONS("/*proxyPath", func(c *gin.Context) {
+	// 	c.Status(http.StatusOK)
+	// })
 
 	projectURL := fmt.Sprintf(
-		"http://%s:%s/api/v1",
+		"http://%s:%s",
 		os.Getenv("PROJECT_SERVICE_HOST"),
 		os.Getenv("PROJECT_SERVICE_PORT"),
 	)
-	router.GET("/project-management-service/*proxyPath", reverseProxy(projectURL))
-	router.POST("/project-management-service/*proxyPath", reverseProxy(projectURL))
+	router.Any("/project-management-service/*proxyPath", reverseProxy(projectURL))
+
+	typeURL := fmt.Sprintf(
+		"http://%s:%s",
+		os.Getenv("TYPE_SERVICE_HOST"),
+		os.Getenv("TYPE_SERVICE_PORT"),
+	)
+	router.Any("/type-management-service/*proxyPath", reverseProxy(typeURL))
+
+	fileURL := fmt.Sprintf(
+		"http://%s:%s",
+		os.Getenv("FILE_SERVICE_HOST"),
+		os.Getenv("FILE_SERVICE_PORT"),
+	)
+	router.Any("/file-management-service/*proxyPath", reverseProxy(fileURL))
 
 	return router
 }
